@@ -60,15 +60,15 @@ local keyStatus = Instance.new("TextLabel")
 keyStatus.Size = UDim2.new(1, 0, 0.15, 0)
 keyStatus.Position = UDim2.new(0, 0, 0.75, 0)
 keyStatus.BackgroundTransparency = 1
-keyStatus.Text = "Enter key to unlock"
+keyStatus.Text = ""
 keyStatus.TextColor3 = Color3.fromRGB(150, 150, 150)
 keyStatus.TextScaled = true
 keyStatus.Font = Enum.Font.Gotham
 keyStatus.Parent = keyFrame
 
 local musicFrame = Instance.new("Frame")
-musicFrame.Size = UDim2.new(0, 300, 0, 180)
-musicFrame.Position = UDim2.new(0.5, -150, 0.1, 0)
+musicFrame.Size = UDim2.new(0, 350, 0, 220)
+musicFrame.Position = UDim2.new(0.5, -175, 0.1, 0)
 musicFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 musicFrame.BackgroundTransparency = 0.15
 musicFrame.BorderSizePixel = 2
@@ -79,7 +79,7 @@ musicFrame.Visible = false
 musicFrame.Parent = screenGui
 
 local musicTitle = Instance.new("TextLabel")
-musicTitle.Size = UDim2.new(1, 0, 0.2, 0)
+musicTitle.Size = UDim2.new(1, 0, 0.15, 0)
 musicTitle.Position = UDim2.new(0, 0, 0, 0)
 musicTitle.BackgroundTransparency = 1
 musicTitle.Text = "Music Player By: CobraStudio 😈"
@@ -90,7 +90,7 @@ musicTitle.Parent = musicFrame
 
 local musicInput = Instance.new("TextBox")
 musicInput.Size = UDim2.new(0.8, 0, 0.2, 0)
-musicInput.Position = UDim2.new(0.1, 0, 0.25, 0)
+musicInput.Position = UDim2.new(0.1, 0, 0.2, 0)
 musicInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 musicInput.BackgroundTransparency = 0.3
 musicInput.BorderSizePixel = 1
@@ -106,7 +106,7 @@ musicInput.Parent = musicFrame
 
 local playButton = Instance.new("TextButton")
 playButton.Size = UDim2.new(0.3, 0, 0.2, 0)
-playButton.Position = UDim2.new(0.1, 0, 0.5, 0)
+playButton.Position = UDim2.new(0.1, 0, 0.45, 0)
 playButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
 playButton.BackgroundTransparency = 0.2
 playButton.BorderSizePixel = 2
@@ -119,7 +119,7 @@ playButton.Parent = musicFrame
 
 local stopButton = Instance.new("TextButton")
 stopButton.Size = UDim2.new(0.3, 0, 0.2, 0)
-stopButton.Position = UDim2.new(0.6, 0, 0.5, 0)
+stopButton.Position = UDim2.new(0.6, 0, 0.45, 0)
 stopButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
 stopButton.BackgroundTransparency = 0.2
 stopButton.BorderSizePixel = 2
@@ -132,7 +132,7 @@ stopButton.Parent = musicFrame
 
 local musicStatus = Instance.new("TextLabel")
 musicStatus.Size = UDim2.new(1, 0, 0.15, 0)
-musicStatus.Position = UDim2.new(0, 0, 0.75, 0)
+musicStatus.Position = UDim2.new(0, 0, 0.7, 0)
 musicStatus.BackgroundTransparency = 1
 musicStatus.Text = "Stopped"
 musicStatus.TextColor3 = Color3.fromRGB(150, 150, 150)
@@ -160,13 +160,14 @@ local function playMusic()
     if not keyEntered then return end
     local musicId = musicInput.Text
     if musicId == "" then
-        musicStatus.Text = "Enter ID first"
+        musicStatus.Text = "Enter ID"
         musicStatus.TextColor3 = Color3.fromRGB(255, 200, 0)
         return
     end
     
     if isPlaying then
         if currentSound then
+            currentSound:Stop()
             currentSound:Destroy()
             currentSound = nil
         end
@@ -176,18 +177,19 @@ local function playMusic()
     sound.SoundId = "rbxassetid://" .. musicId
     sound.Volume = 1
     sound.Looped = true
-    sound.PlayOnRemove = false
-    
-    local attachment = Instance.new("Attachment")
-    attachment.Parent = game.Workspace.Terrain
-    
-    sound.Parent = attachment
-    
+    sound.Parent = game:GetService("SoundService")
     sound:Play()
+    
+    local sound2 = Instance.new("Sound")
+    sound2.SoundId = "rbxassetid://" .. musicId
+    sound2.Volume = 1
+    sound2.Looped = true
+    sound2.Parent = game.Workspace
+    sound2:Play()
     
     currentSound = sound
     isPlaying = true
-    musicStatus.Text = "Playing: " .. musicId
+    musicStatus.Text = "Playing"
     musicStatus.TextColor3 = Color3.fromRGB(0, 255, 0)
 end
 
@@ -197,6 +199,21 @@ local function stopMusic()
         currentSound:Destroy()
         currentSound = nil
     end
+    
+    for _, sound in pairs(game.Workspace:GetChildren()) do
+        if sound:IsA("Sound") then
+            sound:Stop()
+            sound:Destroy()
+        end
+    end
+    
+    for _, sound in pairs(game:GetService("SoundService"):GetChildren()) do
+        if sound:IsA("Sound") then
+            sound:Stop()
+            sound:Destroy()
+        end
+    end
+    
     isPlaying = false
     musicStatus.Text = "Stopped"
     musicStatus.TextColor3 = Color3.fromRGB(150, 150, 150)
